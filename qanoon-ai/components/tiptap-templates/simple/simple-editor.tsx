@@ -5,6 +5,7 @@ import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
+import { Markdown } from '@tiptap/markdown'
 import { Image } from "@tiptap/extension-image"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { TextAlign } from "@tiptap/extension-text-align"
@@ -223,6 +224,12 @@ export function SimpleEditor() {
           enableClickSelection: true,
         },
       }),
+      Markdown.configure({
+            indentation: {
+            style: 'space', // 'space' or 'tab'
+            size: 2, // Number of spaces or tabs
+          },
+    }),
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
@@ -234,7 +241,8 @@ export function SimpleEditor() {
       Subscript,
 
     ],
-    content,
+    content: '# Hello World\n\nThis is **Markdown**!',
+    contentType: 'markdown',
   })
 
   const rect = useCursorVisibility({
