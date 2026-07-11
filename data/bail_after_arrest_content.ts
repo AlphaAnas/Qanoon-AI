@@ -1,4 +1,4 @@
-export const bailAfterArrestContent = `# IN THE COURT OF THE 6TH JUDICIAL MAGISTRATE, KARACHI (CENTRAL), SINDH
+export const CONTENT_TEXT = `# IN THE COURT OF THE 6TH JUDICIAL MAGISTRATE, KARACHI (CENTRAL), SINDH
 
 ## Criminal Bail Application No. _____ of 2026
 

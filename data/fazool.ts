@@ -1,0 +1,1 @@
+export const CONTENT_TEXT = "# Hello World\n\nThis is **Markdown**!"

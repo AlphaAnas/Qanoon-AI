@@ -14,7 +14,9 @@ import { Highlight } from "@tiptap/extension-highlight"
 import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
 
-
+// const CONTENT_TEXT = "# Hello World\n\nThis is **Markdown**!"
+import { CONTENT_TEXT } from "@/data/bail_after_arrest_content"
+import { formatToDocxQuality } from "@/lib/markdown-formatter"
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
@@ -65,14 +67,13 @@ import { useWindowSize } from "@/hooks/use-window-size"
 import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
 
 // --- Components ---
-import { ThemeToggle } from "@/components/tiptap-templates/simple/theme-toggle"
+import { ThemeToggle } from "@/app/editor/theme-toggle"
 
 // --- Lib ---
 
 // --- Styles ---
-import "@/components/tiptap-templates/simple/simple-editor.scss"
+import "@/app/editor/simple-editor.scss"
 
-import content from "@/components/tiptap-templates/simple/data/content.json"
 
 const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
@@ -241,7 +242,7 @@ export function SimpleEditor() {
       Subscript,
 
     ],
-    content: '# Hello World\n\nThis is **Markdown**!',
+    content: formatToDocxQuality(CONTENT_TEXT),
     contentType: 'markdown',
   })
 

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 
 const SimpleEditor = dynamic(
-  () => import("@/components/tiptap-templates/simple/simple-editor").then((mod) => mod.SimpleEditor),
+  () => import("@/app/editor/simple-editor").then((mod) => mod.SimpleEditor),
   { ssr: false }
 )
 
