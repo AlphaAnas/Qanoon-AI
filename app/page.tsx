@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import { useState, useCallback } from "react"
 import { handleFileRead } from "./uploader"
-
+import { CONTENT_TEXT } from "@/data/bail_after_arrest_content"
 const SimpleEditor = dynamic(
   () => import("@/app/editor/simple-editor").then((mod) => mod.SimpleEditor),
   { ssr: false }
@@ -21,7 +21,8 @@ export default function Page() {
       setError(null)
       const formattedContent = await handleFileRead(file)
       console.log("Formatted content received: ", formattedContent.slice(0, 100)); // Log the first 100 characters for debugging
-      setContent(formattedContent as string)
+      // setContent(formattedContent as string)
+      setContent(CONTENT_TEXT as string) // For testing, using the constant content instead of the uploaded file content
     } catch (err) {
       setError(err.message)
     }

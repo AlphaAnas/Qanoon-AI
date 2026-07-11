@@ -14,7 +14,7 @@ async function handleFileRead(file?: File) {
   }
   
   try {
-    const contents = await file.text();
+    let contents = await file.text();
     const formattedContents = await handleMarkdownFormatting(contents);
     if (formattedContents) {
       return Promise.resolve(formattedContents);
