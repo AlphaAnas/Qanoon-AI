@@ -14,7 +14,6 @@ import { Highlight } from "@tiptap/extension-highlight"
 import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
 
-// const CONTENT_TEXT = "# Hello World\n\nThis is **Markdown**!"
 import { CONTENT_TEXT } from "@/data/bail_after_arrest_content"
 import { formatToDocxQuality } from "@/lib/markdown-formatter"
 // --- UI Primitives ---
@@ -193,7 +192,11 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor() {
+interface SimpleEditorProps {
+  initialContent?: string
+}
+
+export function SimpleEditor({ initialContent }: SimpleEditorProps = {}) {
   const isMobile = useIsBreakpoint()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -242,9 +245,17 @@ export function SimpleEditor() {
       Subscript,
 
     ],
-    content: formatToDocxQuality(CONTENT_TEXT),
+    content: initialContent !== undefined ? initialContent : formatToDocxQuality(CONTENT_TEXT),
     contentType: 'markdown',
   })
+
+  useEffect(() => {
+    if (editor && initialContent !== undefined) {
+      if (editor.getHTML() !== initialContent && editor.getText() !== initialContent) {
+        editor.commands.setContent(initialContent, false)
+      }
+    }
+  }, [initialContent, editor])
 
   const rect = useCursorVisibility({
     editor,
