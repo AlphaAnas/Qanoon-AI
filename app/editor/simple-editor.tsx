@@ -192,16 +192,14 @@ const MobileToolbarContent = ({
   </>
 )
 
-interface SimpleEditorProps {
-  initialContent?: string
-}
 
-export function SimpleEditor({ initialContent }: SimpleEditorProps = {}) {
+// 1. Properly destructure the props object
+export function SimpleEditor({ content = "# Enter text to continue" }: { content?: string }) {
   const isMobile = useIsBreakpoint()
   const { height } = useWindowSize()
-  const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
-    "main"
-  )
+  const [mdInput, setmdInput] = useState(content)
+  const [error, setError] = useState<string | null>(null)
+  const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main")
   const [zoom, setZoom] = useState(1)
   const toolbarRef = useRef<HTMLDivElement>(null)
 
@@ -210,7 +208,6 @@ export function SimpleEditor({ initialContent }: SimpleEditorProps = {}) {
   }, [])
 
   const editor = useEditor({
-    immediatelyRender: false,
     editorProps: {
       attributes: {
         autocomplete: "off",
@@ -229,11 +226,11 @@ export function SimpleEditor({ initialContent }: SimpleEditorProps = {}) {
         },
       }),
       Markdown.configure({
-            indentation: {
-            style: 'space', // 'space' or 'tab'
-            size: 2, // Number of spaces or tabs
-          },
-    }),
+        indentation: {
+          style: 'space',
+          size: 2,
+        },
+      }),
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
@@ -243,19 +240,26 @@ export function SimpleEditor({ initialContent }: SimpleEditorProps = {}) {
       Typography,
       Superscript,
       Subscript,
-
     ],
-    content: initialContent !== undefined ? initialContent : formatToDocxQuality(CONTENT_TEXT),
+    // 2. Set the initial content here
+    content: content, 
     contentType: 'markdown',
   })
 
   useEffect(() => {
-    if (editor && initialContent !== undefined) {
-      if (editor.getHTML() !== initialContent && editor.getText() !== initialContent) {
-        editor.commands.setContent(initialContent, false)
-      }
+    if (editor && content) {
+       setmdInput(content); 
+       
+       try {
+         setError(null)
+         // Pass the prop directly instead of relying on the async state of mdInput
+         editor.commands.setContent(content, { contentType: 'markdown' })
+       } catch (err) {
+         console.error(err)
+         setError(`Error parsing markdown: ${err instanceof Error ? err.message : String(err)}`)
+       }
     }
-  }, [initialContent, editor])
+  }, [content, editor])
 
   const rect = useCursorVisibility({
     editor,

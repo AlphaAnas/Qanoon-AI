@@ -21,8 +21,7 @@ export default function Page() {
       setError(null)
       const formattedContent = await handleFileRead(file)
       console.log("Formatted content received: ", formattedContent.slice(0, 100)); // Log the first 100 characters for debugging
-      // setContent(formattedContent as string)
-      setContent(CONTENT_TEXT as string) // For testing, using the constant content instead of the uploaded file content
+      setContent(formattedContent as string)
     } catch (err) {
       setError(err.message)
     }
@@ -54,7 +53,7 @@ export default function Page() {
         </label>
         {error && <div style={{ color: "red", marginTop: '8px' }}>{error}</div>}
       </div>
-      <SimpleEditor initialContent={content} />
+      <SimpleEditor content={content} />
     </div>
   )
 }
