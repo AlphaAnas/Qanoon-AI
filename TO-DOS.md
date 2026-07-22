@@ -2,7 +2,7 @@
 
 **More Important**
 - [x] Add option to upload any markdown file and display its text in editor (without error handling)
-- [ ] Format the page correctly so it looks like a book with pages and margins.
+- [x] Format the page correctly so it looks like a book with pages and margins.
 - [ ] Format the Headings Center Aligned.
 - [ ] Format the Paragraphs Justified Center
 - [ ] Format paragraph Text Size Font size 12px
