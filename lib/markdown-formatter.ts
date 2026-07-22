@@ -30,5 +30,6 @@ export function formatToDocxQuality(markdown: string): string {
   // Step 7: Remove empty lines at start and end
   result = result.trim()
 
+
   return result
 }
