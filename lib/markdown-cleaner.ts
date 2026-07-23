@@ -3,8 +3,13 @@
  * Removes AI-generated artifacts and ensures consistent legal document formatting.
  */
 
-export function formatToDocxQuality(markdown: string): string {
+export function cleanFile(markdown: string): string {
   let result = markdown
+
+  // Step 0: Remove outer markdown code fences (e.g., ```markdown ... ```)
+  result = result.replace(/^```(?:markdown)?\n?/i, '') // Strips opening ```markdown
+  result = result.replace(/\n?```\s*$/i, '')           // Strips closing ```
+
 
   // Step 1: Normalize line endings to \n
   result = result.replace(/\r\n/g, '\n').replace(/\r/g, '\n')

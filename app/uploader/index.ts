@@ -23,7 +23,7 @@ async function handleFileRead(file?: File) {
       return Promise.reject(new Error('Failed to format markdown content.'));
     }
   } catch (err) {
-    console.error(err.message);
+    console.error(err instanceof Error ? err.message : err);
     return Promise.reject(new Error('Failed to read or format the markdown text.'));
   }
 }

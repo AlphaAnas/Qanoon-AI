@@ -66,15 +66,21 @@ body,
 /* 1. The Workspace (Gray background) */
 .simple-editor-wrapper {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   overflow: auto;
   background-color: var(--tt-bg-workspace);
-  padding: 40px 0; /* Space above and below the paper */
+  padding: 0 0 40px 0; /* Only bottom padding, top is handled by toolbar */
+}
+
+/* Toolbar - positioned at top of wrapper */
+.simple-editor-wrapper .tiptap-toolbar.simple-editor-toolbar {
+  max-width: 210mm;
+  width: 95vw !important;
+  margin: 0 auto 8px auto;
 }
 
 /* 2. The Zoom Container */
 .simple-editor-zoom-container {
-  flex: 1;
   display: flex;
   justify-content: center;
   min-height: max-content; /* Ensures it doesn't cut off at the bottom when scaling */
@@ -82,9 +88,9 @@ body,
 
 /* 3. The Document Page (A4 Paper) */
 .simple-editor-content {
-  width: 210mm; /* Standard A4 width */
+  width: var(--page-width, 210mm);
   max-width: 95vw; /* Prevents horizontal scroll on small screens */
-  min-height: 297mm; /* Standard A4 height */
+  min-height: var(--page-height, 297mm);
   margin: 0 auto;
   
   /* The physical paper look */
@@ -109,6 +115,20 @@ body,
   padding: 1in; /* Standard Word 1-inch margins */
   outline: none; /* Removes the blue focus ring */
   cursor: text;
+  font-size: var(--editor-font-size, 12px);
+
+  p[style] {
+    font-size: var(--editor-font-size, 12px) !important;
+  }
+
+  h1[style],
+  h2[style],
+  h3[style],
+  h4[style],
+  h5[style],
+  h6[style] {
+    font-size: var(--editor-heading-size, 14px) !important;
+  }
 }
 
 @media screen and (max-width: 480px) {

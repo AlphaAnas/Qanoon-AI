@@ -23,7 +23,7 @@ export default function Page() {
       console.log("Formatted content received: ", formattedContent.slice(0, 100)); // Log the first 100 characters for debugging
       setContent(formattedContent as string)
     } catch (err) {
-      setError(err.message)
+      setError(err instanceof Error ? err.message : String(err))
     }
   }, [])
 

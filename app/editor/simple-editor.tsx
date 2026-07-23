@@ -14,8 +14,6 @@ import { Highlight } from "@tiptap/extension-highlight"
 import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
 
-import { CONTENT_TEXT } from "@/data/bail_after_arrest_content"
-import { formatToDocxQuality } from "@/lib/markdown-formatter"
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
@@ -75,6 +73,12 @@ import "@/app/editor/simple-editor.scss"
 
 
 const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
+const PAGE_SIZES = {
+  A4: { width: "210mm", height: "297mm" },
+  Letter: { width: "8.5in", height: "11in" },
+  Legal: { width: "8.5in", height: "14in" },
+} as const
+const FONT_SIZES = [10, 11, 12, 14, 16]
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -82,12 +86,20 @@ const MainToolbarContent = ({
   isMobile,
   zoom,
   onZoomChange,
+  pageSize,
+  onPageSizeChange,
+  fontSize,
+  onFontSizeChange,
 }: {
   onHighlighterClick: () => void
   onLinkClick: () => void
   isMobile: boolean
   zoom: number
   onZoomChange: (zoom: number) => void
+  pageSize: keyof typeof PAGE_SIZES
+  onPageSizeChange: (pageSize: keyof typeof PAGE_SIZES) => void
+  fontSize: number
+  onFontSizeChange: (fontSize: number) => void
 }) => {
   return (
     <>
@@ -114,7 +126,7 @@ const MainToolbarContent = ({
         <MarkButton type="bold" />
         <MarkButton type="italic" />
         <MarkButton type="underline" />
-   
+
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -146,6 +158,32 @@ const MainToolbarContent = ({
       <ToolbarSeparator />
 
       <ToolbarGroup>
+        <select
+          value={pageSize}
+          onChange={(e) => onPageSizeChange(e.target.value as keyof typeof PAGE_SIZES)}
+          className="zoom-select"
+          aria-label="Page size"
+        >
+          {Object.keys(PAGE_SIZES).map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={fontSize}
+          onChange={(e) => onFontSizeChange(Number(e.target.value))}
+          className="zoom-select"
+          aria-label="Document font size"
+        >
+          {FONT_SIZES.map((size) => (
+            <option key={size} value={size}>
+              {size}px
+            </option>
+          ))}
+        </select>
+
         <select
           value={zoom}
           onChange={(e) => onZoomChange(parseFloat(e.target.value))}
@@ -201,6 +239,8 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
   const [error, setError] = useState<string | null>(null)
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main")
   const [zoom, setZoom] = useState(1)
+  const [pageSize, setPageSize] = useState<keyof typeof PAGE_SIZES>("A4")
+  const [fontSize, setFontSize] = useState(12)
   const toolbarRef = useRef<HTMLDivElement>(null)
 
   const handleZoomChange = useCallback((value: number) => {
@@ -220,6 +260,7 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
+        // codeBlock: false,
         link: {
           openOnClick: false,
           enableClickSelection: true,
@@ -242,22 +283,22 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
       Subscript,
     ],
     // 2. Set the initial content here
-    content: content, 
+    content: content,
     contentType: 'markdown',
   })
 
   useEffect(() => {
     if (editor && content) {
-       setmdInput(content); 
-       
-       try {
-         setError(null)
-         // Pass the prop directly instead of relying on the async state of mdInput
-         editor.commands.setContent(content, { contentType: 'markdown' })
-       } catch (err) {
-         console.error(err)
-         setError(`Error parsing markdown: ${err instanceof Error ? err.message : String(err)}`)
-       }
+      setmdInput(content);
+
+      try {
+        setError(null)
+        // Pass the prop directly instead of relying on the async state of mdInput
+        editor.commands.setContent(content, { contentType: 'markdown' })
+      } catch (err) {
+        console.error(err)
+        setError(`Error parsing markdown: ${err instanceof Error ? err.message : String(err)}`)
+      }
     }
   }, [content, editor])
 
@@ -277,11 +318,15 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}
+          variant="fixed"
+          className="simple-editor-toolbar"
           style={{
             ...(isMobile
               ? {
-                  bottom: `calc(100% - ${height - rect.y}px)`,
-                }
+                position: 'absolute',
+                bottom: `calc(100% - ${height - rect.y}px)`,
+                width: '100%',
+              }
               : {}),
           }}
         >
@@ -292,6 +337,10 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
               isMobile={isMobile}
               zoom={zoom}
               onZoomChange={handleZoomChange}
+              pageSize={pageSize}
+              onPageSizeChange={setPageSize}
+              fontSize={fontSize}
+              onFontSizeChange={setFontSize}
             />
           ) : (
             <MobileToolbarContent
@@ -303,7 +352,13 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
 
         <div
           className="simple-editor-zoom-container"
-          style={{ "--editor-zoom": zoom } as React.CSSProperties}
+          style={{
+            "--editor-zoom": zoom,
+            "--page-width": PAGE_SIZES[pageSize].width,
+            "--page-height": PAGE_SIZES[pageSize].height,
+            "--editor-font-size": `${fontSize}px`,
+            "--editor-heading-size": `${fontSize + 2}px`,
+          } as React.CSSProperties}
         >
           <EditorContent
             editor={editor}
