@@ -6,7 +6,7 @@
 
 import {cleanFile} from "@/lib/markdown-cleaner";
 
-const headingStyle = 'text-align: center; font-size: 14px';
+const headingStyle = 'text-align: left; font-size: 14px';
 const paragraphStyle = 'text-align: justify; font-size: 12px';
 
 function formatBoldText(text: string): string {

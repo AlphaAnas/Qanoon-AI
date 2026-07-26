@@ -38,3 +38,17 @@ export function cleanFile(markdown: string): string {
 
   return result
 }
+
+
+export function detectMarkdown(text: string): boolean {
+  const signals = [
+    /^#{1,6}\s/m,        // headings
+    /\*\*[^*]+\*\*/,     // bold
+    /^[-*+]\s/m,         // bullet lists
+    /^\d+\.\s/m,         // numbered lists
+    /```/,               // code blocks
+    /\|.+\|/,            // tables
+  ]
+  const hits = signals.filter((r) => r.test(text)).length
+  return hits >= 1 // tune threshold based on false positives you see
+}

@@ -13,7 +13,6 @@ import { Typography } from "@tiptap/extension-typography"
 import { Highlight } from "@tiptap/extension-highlight"
 import { Subscript } from "@tiptap/extension-subscript"
 import { Superscript } from "@tiptap/extension-superscript"
-
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
@@ -65,141 +64,15 @@ import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
 
 // --- Components ---
 import { ThemeToggle } from "@/app/editor/theme-toggle"
+import { MainToolbarContent, ZOOM_LEVELS, PAGE_SIZES, FONT_SIZES } from "@/components/toolbar"
 
 // --- Lib ---
-
+import { detectMarkdown } from "@/lib/markdown-cleaner"
 // --- Styles ---
 import "@/app/editor/simple-editor.scss"
+import { handleMarkdownFormatting } from "../uploader/mdformatter"
 
 
-const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-const PAGE_SIZES = {
-  A4: { width: "210mm", height: "297mm" },
-  Letter: { width: "8.5in", height: "11in" },
-  Legal: { width: "8.5in", height: "14in" },
-} as const
-const FONT_SIZES = [10, 11, 12, 14, 16]
-
-const MainToolbarContent = ({
-  onHighlighterClick,
-  onLinkClick,
-  isMobile,
-  zoom,
-  onZoomChange,
-  pageSize,
-  onPageSizeChange,
-  fontSize,
-  onFontSizeChange,
-}: {
-  onHighlighterClick: () => void
-  onLinkClick: () => void
-  isMobile: boolean
-  zoom: number
-  onZoomChange: (zoom: number) => void
-  pageSize: keyof typeof PAGE_SIZES
-  onPageSizeChange: (pageSize: keyof typeof PAGE_SIZES) => void
-  fontSize: number
-  onFontSizeChange: (fontSize: number) => void
-}) => {
-  return (
-    <>
-      <Spacer />
-
-      <ToolbarGroup>
-        <UndoRedoButton action="undo" />
-        <UndoRedoButton action="redo" />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <HeadingDropdownMenu modal={false} levels={[1, 2, 3, 4]} />
-        <ListDropdownMenu
-          modal={false}
-          types={["bulletList", "orderedList", "taskList"]}
-        />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <MarkButton type="bold" />
-        <MarkButton type="italic" />
-        <MarkButton type="underline" />
-
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <MarkButton type="superscript" />
-        <MarkButton type="subscript" />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <TextAlignButton align="left" />
-        <TextAlignButton align="center" />
-        <TextAlignButton align="right" />
-        <TextAlignButton align="justify" />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <Spacer />
-
-      {isMobile && <ToolbarSeparator />}
-
-      <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <select
-          value={pageSize}
-          onChange={(e) => onPageSizeChange(e.target.value as keyof typeof PAGE_SIZES)}
-          className="zoom-select"
-          aria-label="Page size"
-        >
-          {Object.keys(PAGE_SIZES).map((size) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={fontSize}
-          onChange={(e) => onFontSizeChange(Number(e.target.value))}
-          className="zoom-select"
-          aria-label="Document font size"
-        >
-          {FONT_SIZES.map((size) => (
-            <option key={size} value={size}>
-              {size}px
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={zoom}
-          onChange={(e) => onZoomChange(parseFloat(e.target.value))}
-          className="zoom-select"
-          aria-label="Zoom level"
-        >
-          {ZOOM_LEVELS.map((level) => (
-            <option key={level} value={level}>
-              {Math.round(level * 100)}%
-            </option>
-          ))}
-        </select>
-      </ToolbarGroup>
-    </>
-  )
-}
 
 const MobileToolbarContent = ({
   type,
@@ -285,6 +158,51 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
     // 2. Set the initial content here
     content: content,
     contentType: 'markdown',
+
+    onUpdate: ({ editor }) => {
+      console.log("Editor content updated!!")
+    },
+
+    onFocus: ({ editor, event }) => {
+      console.log("Editor is focused now!!")
+    },
+
+    onBlur: ({ editor, event }) => {
+      console.log("Editor is no longer focused!!")
+    },
+
+    onPaste: async (event, slice) => {
+      const pastedText = event.clipboardData?.getData('text/plain') ?? ''
+
+      const isMarkdown = detectMarkdown(pastedText)
+
+      if (isMarkdown) {
+        console.log('Detected markdown paste')
+        // let default markdown parsing handle it, or run your MD pipeline
+        const formattedText = await handleMarkdownFormatting(pastedText);
+        if (editor && formattedText) {
+          setmdInput(formattedText);
+
+          try {
+            setError(null)
+            // Pass the prop directly instead of relying on the async state of mdInput
+            editor.commands.setContent(formattedText, { contentType: 'markdown' })
+          } catch (err) {
+            console.error(err)
+            setError(`Error parsing markdown: ${err instanceof Error ? err.message : String(err)}`)
+          }
+
+        }
+
+
+
+      } else {
+        console.log('Detected plain text paste')
+        // I am thinking of passing it through markdown parser to remove --- dashes and em dashes and to format the content correctly
+        // run your heuristic plain-text segmenter here
+        // event.preventDefault() if you want to fully intercept and insert custom content instead
+      }
+    },
   })
 
   useEffect(() => {
@@ -354,8 +272,6 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
           className="simple-editor-zoom-container"
           style={{
             "--editor-zoom": zoom,
-            "--page-width": PAGE_SIZES[pageSize].width,
-            "--page-height": PAGE_SIZES[pageSize].height,
             "--editor-font-size": `${fontSize}px`,
             "--editor-heading-size": `${fontSize + 2}px`,
           } as React.CSSProperties}
@@ -364,6 +280,7 @@ export function SimpleEditor({ content = "# Enter text to continue" }: { content
             editor={editor}
             role="presentation"
             className="simple-editor-content"
+            data-page-size={pageSize.toLowerCase()} /* E.g., "a4", "letter", or "legal" */
           />
         </div>
       </EditorContext.Provider>

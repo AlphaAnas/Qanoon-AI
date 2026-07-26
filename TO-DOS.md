@@ -1,15 +1,8 @@
 ## TO DOs
+- add page breaks
+- make document editor toolbar better like in this [link](https://tiptap.dev/) under docs editor
+- when user pastes plain text, remove em dashes and --- lines if any
+- format document correclty as per legal / course format for bail , case, application
 
-**More Important**
-- [x] Add option to upload any markdown file and display its text in editor (without error handling)
-- [x] Format the page correctly so it looks like a book with pages and margins.
-- [x] Format the Headings Center Aligned.
-- [x] Format the Paragraphs Justified Center
-- [x] Format paragraph Text Size Font size 12px
-- [x] Format Heading font size 14px
-- [x] All Headings Bold and Center aligned
-- [x] Add Feature to change page sizes e.g. A4, Legal, etc.
-- [x] Add Feature to change font size.
----
-**Less Important**
-- [ ] Add feature for table
+## BUGS
+- on Dark Theme - toolbar, zoom, font , paper size commands not changing color to white like other icons

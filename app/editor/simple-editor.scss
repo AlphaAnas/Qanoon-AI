@@ -3,26 +3,28 @@
 body {
   --tt-toolbar-height: 44px;
   --tt-theme-text: var(--tt-gray-light-900);
-  
+
   /* New variables for the document workspace */
-  --tt-bg-workspace: #f3f4f6; /* Gray background behind the paper */
-  --tt-bg-paper: #ffffff; /* White paper */
-  --tt-paper-border: #e5e7eb;
+  --tt-bg-workspace: #F8FAFD;
+  /* Gray background behind the paper */
+  --tt-bg-paper: #ffffff;
+  /* White paper */
+  --tt-paper-border: #d5d0d0;
 
   .dark & {
-    --tt-theme-text: var(--tt-gray-dark-900);
+    --tt-theme-text: var(--tt-gray-light-900);
     /* Dark mode paper adjustments */
-    --tt-bg-workspace: #111827; 
-    --tt-bg-paper: #1f2937;
+    --tt-bg-workspace: #111827;
+    --tt-bg-paper: #fff;
     --tt-paper-border: #374151;
   }
 }
 
 body {
-  font-family: "Times New Roman", sans-serif;
+  font-family:"Jetbrains Mono NL", "Times New Roman", sans-serif;
   color: var(--tt-theme-text);
   font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 600;
   font-style: normal;
   padding: 0;
   overscroll-behavior-y: none;
@@ -60,7 +62,7 @@ body,
 }
 
 .tiptap.ProseMirror {
-  font-family: "Times New Roman", "DM Sans", sans-serif;
+  font-family:  "Times New Roman", "DM Sans", sans-serif;
 }
 
 /* 1. The Workspace (Gray background) */
@@ -69,13 +71,14 @@ body,
   min-height: 100vh;
   overflow: auto;
   background-color: var(--tt-bg-workspace);
-  padding: 0 0 40px 0; /* Only bottom padding, top is handled by toolbar */
+  padding: 0 0 40px 0;
+  /* Only bottom padding, top is handled by toolbar */
 }
 
 /* Toolbar - positioned at top of wrapper */
 .simple-editor-wrapper .tiptap-toolbar.simple-editor-toolbar {
-  max-width: 210mm;
-  width: 95vw !important;
+  width: 100% !important;
+  max-width: 100%;
   margin: 0 auto 8px auto;
 }
 
@@ -83,37 +86,60 @@ body,
 .simple-editor-zoom-container {
   display: flex;
   justify-content: center;
-  min-height: max-content; /* Ensures it doesn't cut off at the bottom when scaling */
+  min-height: max-content;
+  /* Ensures it doesn't cut off at the bottom when scaling */
 }
 
-/* 3. The Document Page (A4 Paper) */
+/* 3. The Document Page */
 .simple-editor-content {
-  width: var(--page-width, 210mm);
-  max-width: 95vw; /* Prevents horizontal scroll on small screens */
-  min-height: var(--page-height, 297mm);
+  /* Default fallback (A4) */
+  --page-width: 210mm;
+  --page-height: 297mm;
+
+  /* Page Size Definitions */
+  &[data-page-size="a4"] {
+    --page-width: 210mm;
+    --page-height: 297mm;
+  }
+
+  &[data-page-size="letter"] {
+    --page-width: 8.5in;
+    --page-height: 11in;
+  }
+
+  &[data-page-size="legal"] {
+    --page-width: 8.5in;
+    --page-height: 14in;
+  }
+
+  /* Core styles using the variables defined above */
+  width: var(--page-width);
+  max-width: 95vw;
+  min-height: var(--page-height);
   margin: 0 auto;
-  
+
   /* The physical paper look */
   background-color: var(--tt-bg-paper);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--tt-paper-border);
   border-radius: 2px;
-  
+
   display: flex;
   flex-direction: column;
-  
+
   transform-origin: top center;
   transform: scale(var(--editor-zoom, 1));
   transition: transform 0.15s ease;
-  /* keep layout space correct at the scaled size */
   margin-bottom: calc((var(--editor-zoom, 1) - 1) * 100%);
 }
 
 /* 4. The Editor Text Area (1-inch margins) */
 .simple-editor-content .tiptap.ProseMirror.simple-editor {
   flex: 1;
-  padding: 1in; /* Standard Word 1-inch margins */
-  outline: none; /* Removes the blue focus ring */
+  padding: 1in;
+  /* Standard Word 1-inch margins */
+  outline: none;
+  /* Removes the blue focus ring */
   cursor: text;
   font-size: var(--editor-font-size, 12px);
 
