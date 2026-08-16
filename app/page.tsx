@@ -16,11 +16,29 @@ export default function Page() {
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // receive a raw pdf / .docs file and send it to backend directly and get markdown text and convert it to properly
+    try{
+      setError(null)
+      const formData = new FormData()
+      formData.append("file", file)
+      const response = await fetch(`${process.env.BACKEND_URL}/api/upload_rfp`, {
+        method: "POST",
+        body: formData,
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to upload file: ${response.statusText}`)
+      }
+      const data = await response.json()
+      setContent(data.content)
+    }
+    catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
     
     try {
       setError(null)
       const formattedContent = await handleFileRead(file)
-      console.log("Formatted content received: ", formattedContent.slice(0, 100)); // Log the first 100 characters for debugging
       setContent(formattedContent as string)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
@@ -49,7 +67,7 @@ export default function Page() {
             cursor: 'pointer'
           }}
         >
-          Upload Markdown File
+          Upload Your RFP Here
         </label>
         {error && <div style={{ color: "red", marginTop: '8px' }}>{error}</div>}
       </div>
